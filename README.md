@@ -1,6 +1,6 @@
 ### Forked from https://github.com/PickinA/naemon2influx and adjusted to work out of the box with Naemon with Adagios & Pynag.
 
-naemon2influx takes Nagios/Naemon performance data and writes it directly into InfluxDB's time sequence database in order that this data might be presented, for example using Grafana.
+naemon2influx takes Naemon performance data and writes it directly into InfluxDB's time sequence database in order that this data might be presented, for example using Grafana.
 
 The motivation for this plugin came when I failed to to get other projects, based that were around the carbon/graphite interface, to work. I had no need for Graphite and thought there should be a simpler and more straight forward solution. I had previously used the naemongraph plugin (indeed still do) to display graphic historic data from Nagios. However I wanted to get the performance data into other dashboards where data is gathered from other sources, while still alowing me to use legecy systems of graphing. Further, I didn't want to create a separate service that could fail, I wanted something that would use Nagios's internal scheduler to operate.
 
