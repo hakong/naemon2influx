@@ -31,6 +31,28 @@ firewall-cmd --reload
 systemctl enable grafana-server.service
 systemctl start grafana-server.service
 ```
+## Installing naemon2influx
+`yum install https://github.com/hakong/naemon2influx/releases/download/v1.0.1/naemon2influx-1.0-01.el7.x86_64.rpm`
+## Naemon Configuration
+
+Ensure that you have service checks producing performace data in the standard format.
+
+Ensure that these service have process_perf_data=1
+
+```
+pynag add command command_name=process-service-perfdata-naemon2influx command_line='/usr/bin/naemon-perf > /tmp/naemon-perf 2>&1'
+pynag config --set process_performance_data=1
+pynag config --set service_perfdata_file_processing_command=process-service-perfdata-naemon2influx
+pynag config --set service_perfdata_file_mode=a
+pynag config --set service_perfdata_file_processing_interval=15
+pynag config --set service_perfdata_file_template='$TIMET$\t$HOSTNAME$\t$SERVICECHECKCOMMAND$\t$SERVICEDESC$\t$SERVICESTATE$\t$SERVICEPERFDATA$'
+pynag config --set service_perfdata_file=/var/lib/naemon/service-perfdata
+```
+The above configuration will write a performace datafile into the location, and of the format expected by the default naemon2influx.cfg  configuration. If you wish to change the location or format of this file then see the naemon2influx man pages on how change the configuration.
+
+It is recommended that once you have grafana dashboards presenting data for each host, to add action_url properties to your host templates of the form:
+
+	action_url http://<grafana-server>:<grafana-port>/dashboard/db/$HOSTNAME$
 ## Package building
 The make file is capable of building RPM and Debian like packages, using 
 
@@ -55,24 +77,3 @@ If you wish to install by hand here is the RPM manifest.
 Will install these files.
 
 You can install the files anywhere you wish, but you will need to adjust configuration accordingly. YMMV.
-
-## Naemon Configuration
-
-Ensure that you have service checks producing performace data in the standard format.
-
-Ensure that these service have process_perf_data=1
-
-```
-pynag add command command_name=process-service-perfdata-naemon2influx command_line='/usr/bin/naemon-perf > /tmp/naemon-perf 2>&1'
-pynag config --set process_performance_data=1
-pynag config --set service_perfdata_file_processing_command=process-service-perfdata-naemon2influx
-pynag config --set service_perfdata_file_mode=a
-pynag config --set service_perfdata_file_processing_interval=15
-pynag config --set service_perfdata_file_template='$TIMET$\t$HOSTNAME$\t$SERVICECHECKCOMMAND$\t$SERVICEDESC$\t$SERVICESTATE$\t$SERVICEPERFDATA$'
-pynag config --set service_perfdata_file=/var/lib/naemon/service-perfdata
-```
-The above configuration will write a performace datafile into the location, and of the format expected by the default naemon2influx.cfg  configuration. If you wish to change the location or format of this file then see the naemon2influx man pages on how change the configuration.
-
-It is recommended that once you have grafana dashboards presenting data for each host, to add action_url properties to your host templates of the form:
-
-	action_url http://<grafana-server>:<grafana-port>/dashboard/db/$HOSTNAME$
