@@ -53,6 +53,18 @@ The above configuration will write a performace datafile into the location, and 
 It is recommended that once you have grafana dashboards presenting data for each host, to add action_url properties to your host templates of the form:
 
 	action_url http://<grafana-server>:<grafana-port>/dashboard/db/$HOSTNAME$
+
+## Notes
+Data will be collected every time nagios runs a check, which by default is every 10 minutes. Increase the default check frequency if you want.
+Example methods of increasing check frequency:
+```
+# Method 1:
+# Update the generic-service template which most services use to have an interval of 1 minute instead of 10.
+pynag update set check_interval=1 where name=generic-service and register=0
+# Method 2:
+# Use the naemon core config to set the interval length to 6 seconds instead of 60, making all intervals 1/10th.
+pynag config --set interval_length=6
+```
 ## Package building
 The make file is capable of building RPM and Debian like packages, using 
 
