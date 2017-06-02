@@ -1,4 +1,4 @@
-Package: nagios2influx
+Package: naemon2influx
 Section: net
 Architecture: all
 Version: __VERSION__-__RELEASE__

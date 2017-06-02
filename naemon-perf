@@ -1,0 +1,10 @@
+#! /bin/bash
+if [[ -f /var/lib/naemon/service-perfdata ]]
+then
+    /usr/bin/naemon2influx -n
+    retval=$?
+    if [[ $retval == 0 ]]
+    then
+        /usr/bin/naemon2influx
+    fi
+fi
