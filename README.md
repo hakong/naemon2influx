@@ -32,7 +32,7 @@ echo 'create database naemon' | influx
    enabled = true
 
   # The bind address used by the HTTP service.
-   bind-address = ":8086"
+   bind-address = "localhost:8086"
 
   # Determines whether HTTP authentication is enabled.
    auth-enabled = false
