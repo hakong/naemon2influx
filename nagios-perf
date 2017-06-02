@@ -1,3 +1,10 @@
 #! /bin/bash
-/usr/bin/nagios2influx -n | nc -u localhost 8089
-#/usr/libexec/nagiosgraph/insert.pl
+if [[ -f /var/lib/naemon/service-perfdata ]]
+then
+    /usr/local/bin/nagios2influx -n
+    retval=$?
+    if [[ $retval == 0 ]]
+    then
+        /usr/local/bin/nagios2influx
+    fi
+fi
