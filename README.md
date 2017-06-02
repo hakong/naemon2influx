@@ -18,9 +18,24 @@ enabled = 1
 gpgcheck = 1
 gpgkey = https://repos.influxdata.com/influxdb.key
 EOF
+
 yum -y install influxdb
 systemctl enable influxdb.service
 systemctl start influxdb.service
+echo 'create database naemon' | influx
+```
+##### Make sure influx is listening on HTTP
+```
+# /etc/influxdb/influxdb.conf, lines 207-215
+[http]
+  # Determines whether HTTP endpoint is enabled.
+   enabled = true
+
+  # The bind address used by the HTTP service.
+   bind-address = ":8086"
+
+  # Determines whether HTTP authentication is enabled.
+   auth-enabled = false
 ```
 #### Quick Grafana how-to:
 ```
