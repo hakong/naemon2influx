@@ -47,7 +47,7 @@ systemctl enable grafana-server.service
 systemctl start grafana-server.service
 ```
 ## Installing naemon2influx
-`yum install https://github.com/hakong/naemon2influx/releases/download/v1.0.1/naemon2influx-1.0-01.el7.x86_64.rpm`
+`yum install https://github.com/hakong/naemon2influx/releases/download/v1.0.2/naemon2influx-1.0-02.el7.x86_64.rpm`
 ## Naemon Configuration
 
 Ensure that you have service checks producing performace data in the standard format.
