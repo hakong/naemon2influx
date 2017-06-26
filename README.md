@@ -60,7 +60,7 @@ pynag config --set process_performance_data=1
 pynag config --set service_perfdata_file_processing_command=process-service-perfdata-naemon2influx
 pynag config --set service_perfdata_file_mode=a
 pynag config --set service_perfdata_file_processing_interval=15
-pynag config --set service_perfdata_file_template='$TIMET$\t$HOSTNAME$\t$SERVICECHECKCOMMAND$\t$SERVICEDESC$\t$SERVICESTATE$\t$SERVICEPERFDATA$'
+pynag config --set service_perfdata_file_template='$TIMET$\t$HOSTNAME$\t$SERVICEDESC$\t$SERVICESTATE$\t$SERVICEPERFDATA$'
 pynag config --set service_perfdata_file=/var/lib/naemon/service-perfdata
 ```
 The above configuration will write a performace datafile into the location, and of the format expected by the default naemon2influx.cfg  configuration. If you wish to change the location or format of this file then see the naemon2influx man pages on how change the configuration.
