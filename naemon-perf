@@ -2,9 +2,4 @@
 if [[ -f /var/lib/naemon/service-perfdata ]]
 then
     /usr/bin/naemon2influx
-    retval=$?
-    if [[ $retval != 0 ]]
-    then
-        exit 1
-    fi
 fi
