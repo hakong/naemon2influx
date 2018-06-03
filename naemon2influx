@@ -71,6 +71,7 @@ sub configDefaults {
     $Config{timereplacement} = "Time";
     $Config{separator} = "";
     $Config{global_prefix} = "";
+    $Config{trimpattern} = undef;
 }
 
 sub cmdlineOverride {
@@ -155,6 +156,21 @@ sub parseFormat {
     return @c;
 }
 
+sub processThreshold {
+    my ($t) = @_;
+    if    ( $t =~ m/^\@?([.+-\d]+)$/ ){
+	return (0, $1);
+    }elsif( $t =~ m/^\@?([.+-\d]+):$/ ){
+	return ($1, undef);
+    }elsif( $t =~ m/^\@?~:([.+-\d]+)$/ ){
+	return (undef, $1);
+    }elsif( $t =~ m/^\@?([.+-\d]+):([.+-\d]+)$/ ){
+	return ($1, $2);
+    }else{
+	return (undef, undef);
+    }
+}
+
 sub processMeasurements {
     my ($raw) = @_;
     my @metric;
@@ -170,6 +186,16 @@ sub processMeasurements {
         $data[0] = $1/$factor;
         $key = $Config{timereplacement} if ($key eq "time" && $Config{timereplacement});
         push @metric, $key."=".$data[0];
+	my ($warn_lower, $warn_upper) = processThreshold( $data[1] );
+	my ($crit_lower, $crit_upper) = processThreshold( $data[2] );
+	my $min = $data[3];
+	my $max = $data[4];
+	push @metric, $key.".warn_lower=".$warn_lower if defined $warn_lower;
+	push @metric, $key.".warn_upper=".$warn_upper if defined $warn_upper;
+	push @metric, $key.".crit_lower=".$crit_lower if defined $crit_lower;
+	push @metric, $key.".crit_upper=".$crit_upper if defined $crit_upper;
+	push @metric, $key.".max=".$max if $max ne '';
+	push @metric, $key.".min=".$min if $min ne '';
     }
     return @metric;
 }
@@ -177,6 +203,7 @@ sub processMeasurements {
 sub processDataline {
     my ($l, $delim, @c) = @_;
     my $label = $Config{global_prefix};
+    my $trimpattern = $Config{trimpattern} ? qr"$Config{trimpattern}" : undef;
     my $tsp = "";
     my $tag = "";
     my @m;
@@ -186,17 +213,15 @@ sub processDataline {
         if ($c[$i]{type}) {
             if (lc($c[$i]{type}) eq "label") {
                 s/ /$Config{separator}/g;
+                s/$trimpattern//g if $trimpattern;
                 $label .= sprintf("%s%s", ($label) ? "." : "", $_);
-            }
-            if ($c[$i]{type} eq "tag") {
+            }elsif (lc($c[$i]{type}) eq "tag") {
                 return if (lc($c[$i]{tag}) eq "state" && $_ eq "UNKNOWN");
                 s/ /$Config{separator}/g;
                 $tag .= sprintf("%s%s=%s", ($tag) ? "," : "", $c[$i]{tag}, $_);
-            }
-            elsif (lc($c[$i]{type}) eq "time") {
+            }elsif (lc($c[$i]{type}) eq "time") {
                 $tsp = $_ * (10 ** $Config{timefactor});
-            }
-            elsif (lc($c[$i]{type}) eq "data") {
+            }elsif (lc($c[$i]{type}) eq "data") {
                 @m = processMeasurements($_);
             }
         } 
@@ -204,8 +229,14 @@ sub processDataline {
     }
     my $data;
     foreach (@m) {
-        my $str = "$label,$tag $_ $tsp";
-		$data .= "\n" if ($data);
+	my $currtag = $tag;
+	s{(\w+)\[([-+*/.:\w]+)\]}{
+		$currtag .= ',' if $currtag;
+		$currtag .= "$1=$2";
+		$1;
+	}egx;
+	my $str = "$label,$currtag $_ $tsp";
+	$data .= "\n" if ($data);
         $data .= "$str";
     }
     output($data) if ($data);
